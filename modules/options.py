@@ -157,8 +157,10 @@ class Options:
     def save(self, filename):
         assert not cmd_opts.freeze_settings, "saving settings is disabled"
 
-        with open(filename, "w", encoding="utf8") as file:
-            json.dump(self.data, file, indent=4)
+        # with open(filename, "w", encoding="utf8") as file:
+        #     json.dump(self.data, file, indent=4)
+        print(f"Trying to save settings in modules.options to {filename}, while it is disabled")
+        pass
 
     def same_type(self, x, y):
         if x is None or y is None:
