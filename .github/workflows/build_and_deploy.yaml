@@ -1,0 +1,77 @@
+name: Build Docker image and push
+
+on:
+  workflow_call:
+  push:
+    branches: [ "aweminds", "aweminds-merge-1.6" ]
+  pull_request:
+    branches: [ "aweminds", "aweminds-merge-1.6"]
+
+env:
+  REGISTRY: registry.cn-shanghai.aliyuncs.com
+  IMAGE_NAME: aweminds-webui
+  
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Login to Github Container Hub
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+          
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4.4.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=today::$(date +'%Y-%m-%d')"
+
+      - uses: docker/setup-buildx-action@v2
+      
+      - name: Docker Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          push: true
+          file: ./Dockerfile
+          #tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+              registry.cn-shanghai.aliyuncs.com/aweminds/aweminds-webui:snapshot-latest
+              registry.cn-shanghai.aliyuncs.com/aweminds/aweminds-webui:snapshot-${{ steps.date.outputs.today }}
+          labels: ${{ steps.meta.outputs.labels }}
+          
+  trigger-deploy-to-170:
+    needs: build_and_publish
+    runs-on: ubuntu-latest
+    outputs:
+        CONTINUE_JOBS: ${{ steps.manual-trigger.outputs.CONTINUE_JOBS }}
+    steps:
+      - name: manual-trigger
+        id: manual-trigger
+        uses: benhamiltonpro/manual-trigger@v1
+        with:
+          RUN_NAME: "deploying-170"        
+  
+  deploying-170:
+      needs: trigger-deploy-to-170
+      if: ${{ needs.trigger-deploy-to-170.outputs.CONTINUE_JOBS == 'true' }}
+      runs-on: ubuntu-latest
+      steps:
+        - name: Deploy to kaopuyun 170
+          uses: easingthemes/ssh-deploy@main
+          env:
+            REMOTE_HOST: ${{ secrets.KAOPUYUN_170_SERVER_HOST }}
+            REMOTE_USER: ${{ secrets.KAOPUYUN_170_SERVER_USER }}
+            SSH_PRIVATE_KEY: ${{ secrets.KAOPUYUN_170_PRIVATE_KEY }}
+            SCRIPT_BEFORE: |
+              /app/update.sh
