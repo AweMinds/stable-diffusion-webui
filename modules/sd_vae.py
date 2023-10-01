@@ -2,8 +2,7 @@ import os
 import collections
 from dataclasses import dataclass
 
-from modules import paths, shared, devices, script_callbacks, sd_models, extra_networks, lowvram, sd_hijack, hashes, \
-    util
+from modules import paths, shared, devices, script_callbacks, sd_models, extra_networks, lowvram, sd_hijack, hashes
 
 import glob
 from copy import deepcopy

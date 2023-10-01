@@ -1,8 +1,8 @@
 import json
 import os
+import re
 import signal
 import sys
-import re
 
 from modules.timer import startup_timer
 
@@ -164,7 +164,7 @@ def configure_sigint_handler():
 
 
 def configure_opts_onchange():
-    from modules import shared, sd_models, sd_vae, ui_tempdir, sd_hijack
+    from modules import shared, ui_tempdir, sd_hijack
     from modules.call_queue import wrap_queued_call
 
     # shared.opts.onchange("sd_model_checkpoint", wrap_queued_call(lambda: sd_models.reload_model_weights()), call=False)

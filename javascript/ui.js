@@ -286,9 +286,9 @@ onOptionsChanged(function() {
     var sd_checkpoint_hash = opts.sd_checkpoint_hash || "";
     var shorthash = sd_checkpoint_hash.substring(0, 10);
 
-    cookieSet("sd_model_checkpoint", opts.sd_model_checkpoint)
-    cookieSet("sd_vae", opts.sd_vae)
-    cookieSet("CLIP_stop_at_last_layers", opts.CLIP_stop_at_last_layers)
+    cookieSet("sd_model_checkpoint", opts.sd_model_checkpoint); //eslint-disable-line
+    cookieSet("sd_vae", opts.sd_vae);//eslint-disable-line
+    cookieSet("CLIP_stop_at_last_layers", opts.CLIP_stop_at_last_layers);//eslint-disable-line
 
     if (elem && elem.textContent != shorthash) {
         elem.textContent = shorthash;

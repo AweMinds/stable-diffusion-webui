@@ -16,7 +16,7 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 #RUN mv cache_prd.json cache.json
 
 #clone代码
-RUN git clone -b aweminds-0905 https://github.com/AweMinds/stable-diffusion-webui.git .
+RUN git clone -b aweminds-merge-1.6 https://github.com/AweMinds/stable-diffusion-webui.git .
 
 # 安装webUI依赖
 RUN ./webui.sh -f --skip-torch-cuda-test --exit
