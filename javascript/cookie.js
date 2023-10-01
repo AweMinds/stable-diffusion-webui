@@ -10,7 +10,7 @@ function cookieGet(name, def) {
     try {
         let arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
 
-        arr = document.cookie.match(reg)
+        arr = document.cookie.match(reg);
         if (arr) {
             return arr[2];
         } else {
