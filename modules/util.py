@@ -56,3 +56,10 @@ def ldm_print(*args, **kwargs):
         return
 
     print(*args, **kwargs)
+
+
+def get_value_from_cookie(key, request):
+    cookie_ = request.headers['cookie']
+    re_match = f"(^| ){key}=([^;]*)(;|$)"
+    match = re.search(re_match, cookie_)
+    return match[2]

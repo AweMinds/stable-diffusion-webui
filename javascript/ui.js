@@ -280,10 +280,15 @@ onAfterUiUpdate(function() {
     }
 });
 
+// AWETODO: options更新的响应函数
 onOptionsChanged(function() {
     var elem = gradioApp().getElementById('sd_checkpoint_hash');
     var sd_checkpoint_hash = opts.sd_checkpoint_hash || "";
     var shorthash = sd_checkpoint_hash.substring(0, 10);
+
+    cookieSet("sd_model_checkpoint", opts.sd_model_checkpoint)
+    cookieSet("sd_vae", opts.sd_vae)
+    cookieSet("CLIP_stop_at_last_layers", opts.CLIP_stop_at_last_layers)
 
     if (elem && elem.textContent != shorthash) {
         elem.textContent = shorthash;
