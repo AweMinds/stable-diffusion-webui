@@ -434,6 +434,7 @@ def create_ui():
 
             txt2img_gallery, generation_info, html_info, html_log = create_output_panel("txt2img", opts.outdir_txt2img_samples)
 
+            # AWETODO：文生图参数
             txt2img_args = dict(
                 fn=wrap_gradio_gpu_call(modules.txt2img.txt2img, extra_outputs=[None, '', '']),
                 _js="submit",

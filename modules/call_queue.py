@@ -1,8 +1,9 @@
 from functools import wraps
 import html
 import time
+import gradio
 
-from modules import shared, progress, errors, devices, fifo_lock
+from modules import shared, progress, errors, devices, fifo_lock, util, sd_vae
 
 queue_lock = fifo_lock.FIFOLock()
 
@@ -54,6 +55,9 @@ def wrap_gradio_call(func, extra_outputs=None, add_stats=False):
         t = time.perf_counter()
 
         try:
+            _request = get_request_from_args(func, args)
+            _check_sd_model(_request)
+
             res = list(func(*args, **kwargs))
         except Exception as e:
             # When printing out our debug argument list,
@@ -116,3 +120,32 @@ def wrap_gradio_call(func, extra_outputs=None, add_stats=False):
         return tuple(res)
 
     return f
+
+
+def get_request_from_args(func, args):
+    func_name = func.__name__
+    if func_name == "txt2img":
+        return args[23]
+
+    if func_name == "img2img":
+        return args[37]
+
+    return None
+
+
+def _check_sd_model(_request: gradio.Request = None):
+    if not _request:
+        return
+
+    model_title = util.get_value_from_cookie("sd_model_checkpoint", _request)
+    vae_title = util.get_value_from_cookie("sd_vae", _request)
+
+    if not shared.sd_model or shared.sd_model.sd_checkpoint_info.title != model_title:
+        import modules.sd_models
+        # refresh model, unload it from memory to prevent OOM
+        checkpoint = modules.sd_models.get_closet_checkpoint_match(model_title)
+        wrap_queued_call(lambda: modules.sd_models.reload_model_weights(info=checkpoint))
+    if shared.sd_model:
+        vae_file, vae_source = sd_vae.resolve_vae(shared.sd_model.sd_checkpoint_info.filename, vae_title).tuple()
+        if sd_vae.loaded_vae_file != vae_file:
+            wrap_queued_call(lambda: sd_vae.reload_vae_weights(vae_file=vae_file))

@@ -4,9 +4,11 @@ from PIL import Image
 
 from modules import shared, images, devices, scripts, scripts_postprocessing, ui_common, generation_parameters_copypaste
 from modules.shared import opts
+import gradio as gr
 
 
-def run_postprocessing(extras_mode, image, image_folder, input_dir, output_dir, show_extras_results, *args, save_output: bool = True):
+def run_postprocessing(extras_mode, image, image_folder, input_dir, output_dir, show_extras_results,
+                       request: gr.Request, *args, save_output: bool = True):
     devices.torch_gc()
 
     shared.state.begin(job="extras")
