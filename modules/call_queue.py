@@ -1,11 +1,22 @@
+import json
+import logging
+import sys
+import traceback
 from functools import wraps
 import html
 import time
 import gradio
 
-from modules import shared, progress, errors, devices, fifo_lock, util, sd_vae
+from modules import shared, progress, errors, devices, fifo_lock, util, sd_vae, system_monitor
+from modules.system_monitor import MonitorException
+
+from PIL import Image
+
+from modules.timer import Timer
 
 queue_lock = fifo_lock.FIFOLock()
+
+logger = logging.getLogger(__name__)
 
 
 def wrap_queued_call(func):
@@ -29,15 +40,83 @@ def wrap_gradio_gpu_call(func, extra_outputs=None):
         else:
             id_task = None
 
+        task_id = None
+        status = ''
+        time_consumption = {}
+        added_at_time = time.time()
+        extra_outputs_array = extra_outputs
+        if extra_outputs_array is None:
+            extra_outputs_array = [None, '', '']
+
         with queue_lock:
+            timer = Timer('gpu_call')
+
             shared.state.begin(job=id_task)
+            # 任务开始
+            task_id = system_monitor.on_task(get_request_from_args(func, args), func, *args, **kwargs)
+            time_consumption['in_queue'] = time.time() - added_at_time
             progress.start_task(id_task)
 
+            # 任务进行
             try:
+                # 判断是否需要切换模型
+                _request = get_request_from_args(func, args)
+                _check_sd_model(_request)
+                timer.record('load_models')
+
+                # 开始GPU生图
                 res = func(*args, **kwargs)
+                timer.record('inference')
                 progress.record_results(id_task, res)
+
+                # 任务完成
+                status = 'finished'
+                time_consumption.update(timer.records)
+                time_consumption['total'] = time.time() - added_at_time
+                logger.info(timer.summary())
+            # 任务失败
+            except MonitorException as e:
+                logger.error(f'task {id_task} failed: {e.__str__()}')
+                status = 'failed'
+                res = extra_outputs_array + [str(e)]
+                monitor_addr = shared.cmd_opts.system_monitor_addr
+
+                if monitor_addr:
+                    # AWETODO: monitor的错误处理
+                    if 399 < e.status_code < 500:
+                        err_response_string = e.__repr__()
+                        err_resp_json = json.loads(err_response_string)
+                        errcode = err_resp_json['message']['errcode']
+                        errmsg = err_resp_json['message']['errmsg']
+                        raise gradio.Error(f'error code:{errcode},{errmsg}')
+                return res
+            except Exception as e:
+                logger.error(f'task {id_task} failed: {e.__str__()}')
+                if isinstance(e, MonitorException):
+                    task_failed = False
+                status = 'failed'
+                traceback.print_tb(e.__traceback__, file=sys.stderr)
+                print(e, file=sys.stderr)
+                error_message = f'{type(e).__name__}: {e}'
+                res = extra_outputs_array + [f"<div class='error'>{html.escape(error_message)}</div>"]
             finally:
+                # 任务结束
                 progress.finish_task(id_task)
+                if task_id:
+                    try:
+                        if len(res) > 0 and len(res[0]) > 0 and isinstance(res[0][0], Image.Image):
+                            # First element in res is gallery
+                            image_paths = [item.already_saved_as for item in res[0] if isinstance(item, Image.Image)]
+                            log_message = json.dumps([image_paths] + list(res[1:]))
+                        else:
+                            log_message = json.dumps(res)
+                    except Exception as e:
+                        log_message = f'Fail to json serialize results: {str(e)}'
+                    try:
+                        system_monitor.on_task_finished(get_request_from_args(func, args), task_id, status,
+                                                        log_message, time_consumption)
+                    except Exception as e:
+                        logging.warning(f'send task finished event to monitor failed: {str(e)}')
 
             shared.state.end()
 
@@ -55,9 +134,6 @@ def wrap_gradio_call(func, extra_outputs=None, add_stats=False):
         t = time.perf_counter()
 
         try:
-            _request = get_request_from_args(func, args)
-            _check_sd_model(_request)
-
             res = list(func(*args, **kwargs))
         except Exception as e:
             # When printing out our debug argument list,
@@ -129,6 +205,9 @@ def get_request_from_args(func, args):
 
     if func_name == "img2img":
         return args[37]
+
+    if func_name == "run_postprocessing":
+        return args[6]
 
     return None
 
