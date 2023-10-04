@@ -371,3 +371,89 @@ function switchWidthHeight(tabname) {
     updateInput(height);
     return [];
 }
+
+onUiLoaded(function() {
+    // update generate button text
+    updateGenerateBtn_txt2img();
+    updateGenerateBtn_img2img();
+    updateGenerateBtn_extras();
+});
+
+function updateGenerateBtn_txt2img(width = 512, height = 512, batch_count = 1, batch_size = 1, steps = 20, hr_scale = 1, enable_hr = false, hr_second_pass_steps = 0) {
+    debounceCalcute['txt2img_generate'](width, height, batch_count, batch_size, steps, 'txt2img_generate', hr_scale, hr_second_pass_steps, enable_hr);
+}
+
+function updateGenerateBtn_img2img(width = 512, height = 512, batch_count = 1, batch_size = 1, steps = 20) {
+    debounceCalcute['img2img_generate'](width, height, batch_count, batch_size, steps, 'img2img_generate');
+}
+
+function updateGenerateBtn_extras(resize_width = 512, resize_height = 512, resize_scale = 1) {
+    debounceCalcute['extras_generate'](resize_width, resize_height, 0, 0, 0, 'extras_generate', resize_scale);
+}
+
+const debounceCalcute = {
+    'txt2img_generate': debounceCalcuteTimes(calcuCreditTimes, 'txt2img_generate'),
+    'img2img_generate': debounceCalcuteTimes(calcuCreditTimes, 'img2img_generate'),
+    'extras_generate': debounceCalcuteTimes(calcuCreditTimes, 'extras_generate'),
+};
+
+function debounceCalcuteTimes(func, type, wait = 1000, immediate) {
+    let timer = {};
+    timer[type] = null;
+    return function() {
+        let context = this;
+        let args = arguments;
+        if (timer[type]) clearTimeout(timer[type]);
+        if (immediate) {
+            const callNow = !timer;
+            timer[type] = setTimeout(() => {
+                timer = null;
+            }, wait);
+            if (callNow) func.apply(context, args);
+        } else {
+            timer[type] = setTimeout(function() {
+                func.apply(context, args);
+            }, wait);
+        }
+    };
+}
+
+async function calcuCreditTimes(width, height, batch_count, batch_size, steps, buttonId, hr_scale = 1, hr_second_pass_steps = 0, enable_hr = false) {
+    try {
+        //AWETODO: 实现calculateConsume接口，生成图片所需的credit
+        // eslint-disable-next-line no-undef
+        const response = await fetch(`${aweApiUrl}/api/calculateConsume`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                type: buttonId.split('_')[0],
+                image_sizes: [
+                    {
+                        width,
+                        height
+                    }
+                ],
+                batch_count,
+                batch_size,
+                steps,
+                scale: hr_scale,
+                hr_second_pass_steps,
+                hr_scale,
+                enable_hr
+            })
+        });
+        const {inference} = await response.json();
+        const buttonEle = gradioApp().querySelector(`#${buttonId}`);
+        if (inference === 9999) {
+            buttonEle.innerHTML = `Generate <span>&nbsp;( 图像过大，请调整 )</span> `;
+        } else {
+            buttonEle.innerHTML = `Generate <span>&nbsp;(消耗 ${inference} ${inference === 1 ? '积分)' : '积分)'}</span> `;
+        }
+    } catch (e) {
+        console.log(e);
+    }
+
+}

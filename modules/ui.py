@@ -432,6 +432,16 @@ def create_ui():
                     show_progress=False,
                 )
 
+            # AWETODO: 文生图计算credits的响应函数
+            selectors = [batch_count, width, height, batch_size, steps, hr_scale, enable_hr, hr_second_pass_steps]
+            for selector in selectors:
+                selector.change(
+                    fn=None,
+                    inputs=[width, height, batch_count, batch_size, steps, hr_scale, enable_hr, hr_second_pass_steps],
+                    outputs=[],
+                    _js="updateGenerateBtn_txt2img"
+                )
+
             txt2img_gallery, generation_info, html_info, html_log = create_output_panel("txt2img", opts.outdir_txt2img_samples)
 
             # AWETODO：文生图参数
@@ -760,8 +770,19 @@ def create_ui():
                     if category not in {"accordions"}:
                         scripts.scripts_img2img.setup_ui_for_section(category)
 
+            # AWETODO: 图生图计算credits的响应函数
+            selectors = [batch_count, width, height, batch_size, steps]
+            for selector in selectors:
+                selector.change(
+                    fn=None,
+                    inputs=[width, height, batch_count, batch_size, steps],
+                    outputs=[],
+                    _js="updateGenerateBtn_img2img"
+                )
+
             img2img_gallery, generation_info, html_info, html_log = create_output_panel("img2img", opts.outdir_img2img_samples)
 
+            # AWETODO: 图生图参数
             img2img_args = dict(
                 fn=wrap_gradio_gpu_call(modules.img2img.img2img, extra_outputs=[None, '', '']),
                 _js="submit_img2img",

@@ -287,6 +287,12 @@ div.block.gradio-accordion {
 
 #txt2img_generate, #img2img_generate {
     min-height: 4.5em;
+    display: flex;
+    flex-direction: column;
+}
+
+#txt2img_generate > span, #img2img_generate > span, #extras_generate > span {
+    font-size: 10px;
 }
 
 @media screen and (min-width: 2500px) {
