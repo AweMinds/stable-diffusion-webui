@@ -24,8 +24,6 @@ RUN ./webui.sh -f --skip-torch-cuda-test --exit
 RUN ln -s /app/venv/lib/python3.10/site-packages/torch/lib/libnvrtc-672ee683.so.11.2 /app/venv/lib/python3.10/site-packages/torch/lib/libnvrtc.so
 
 #更新代码
-COPY . .
-RUN ./webui.sh -f --skip-torch-cuda-test --exit
 RUN mkdir -p /tmp/gradio
 
 ## 暴露端口
