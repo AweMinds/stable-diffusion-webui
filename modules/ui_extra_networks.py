@@ -211,7 +211,7 @@ class ExtraNetworksPage:
         width = f"width: {shared.opts.extra_networks_card_width}px;" if shared.opts.extra_networks_card_width else ''
         background_image = f'<img src="{html.escape(preview)}" class="preview" loading="lazy">' if preview else ''
         metadata_button = ""
-        metadata = item.get("metadata")
+        # metadata = item.get("metadata")
         # if metadata:
         #     metadata_button = f"<div class='metadata-button card-button' title='Show internal metadata' onclick='extraNetworksRequestMetadata(event, {quote_js(self.name)}, {quote_js(item['name'])})'></div>"
 
