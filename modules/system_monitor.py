@@ -38,7 +38,7 @@ def on_task(request: gradio.Request, func, *args, **kwargs):
     import inspect
     signature = inspect.signature(func)
     positional_args = []
-    for i, param in enumerate(signature.parameters.values()):
+    for _, param in enumerate(signature.parameters.values()):
         if param.kind not in (param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD):
             break
         positional_args.append(param)

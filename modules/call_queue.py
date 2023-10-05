@@ -88,12 +88,10 @@ def wrap_gradio_gpu_call(func, extra_outputs=None):
                         err_resp_json = json.loads(err_response_string)
                         errcode = err_resp_json['message']['errcode']
                         errmsg = err_resp_json['message']['errmsg']
-                        raise gradio.Error(f'error code:{errcode},{errmsg}')
+                        raise gradio.Error(f'error code:{errcode},{errmsg}')  # noqa: B904
                 return res
             except Exception as e:
                 logger.error(f'task {id_task} failed: {e.__str__()}')
-                if isinstance(e, MonitorException):
-                    task_failed = False
                 status = 'failed'
                 traceback.print_tb(e.__traceback__, file=sys.stderr)
                 print(e, file=sys.stderr)

@@ -392,9 +392,9 @@ function updateGenerateBtn_extras(resize_width = 512, resize_height = 512, resiz
 }
 
 const debounceCalcute = {
-    'txt2img_generate': debounceCalcuteTimes(calcuCreditTimes, 'txt2img_generate'),
-    'img2img_generate': debounceCalcuteTimes(calcuCreditTimes, 'img2img_generate'),
-    'extras_generate': debounceCalcuteTimes(calcuCreditTimes, 'extras_generate'),
+    txt2img_generate: debounceCalcuteTimes(calcuCreditTimes, 'txt2img_generate'),
+    img2img_generate: debounceCalcuteTimes(calcuCreditTimes, 'img2img_generate'),
+    extras_generate: debounceCalcuteTimes(calcuCreditTimes, 'extras_generate'),
 };
 
 function debounceCalcuteTimes(func, type, wait = 1000, immediate) {
