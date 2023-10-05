@@ -14,14 +14,17 @@ def webpath(fn):
     return f'file={web_path}?{os.path.getmtime(fn)}'
 
 
-def javascript_html():
+def javascript_html(request: gr.Request):
     # Ensure localization is in `window` before scripts
-    head = f'<script type="text/javascript">{localization.localization_js(shared.opts.localization)}</script>\n'
+    head = f'<script type="text/javascript">{localization.localization_js(request.cookies.get("localization", "None"))}</script>\n'
 
     script_js = os.path.join(script_path, "script.js")
     head += f'<script type="text/javascript" src="{webpath(script_js)}"></script>\n'
 
     for script in scripts.list_scripts("javascript", ".js"):
+        head += f'<script type="text/javascript" src="{webpath(script.path)}"></script>\n'
+
+    for script in scripts.list_scripts("javascript/lib", ".js"):
         head += f'<script type="text/javascript" src="{webpath(script.path)}"></script>\n'
 
     for script in scripts.list_scripts("javascript", ".mjs"):
@@ -52,10 +55,10 @@ def css_html():
 
 
 def reload_javascript():
-    js = javascript_html()
     css = css_html()
 
     def template_response(*args, **kwargs):
+        js = javascript_html(args[1]['request'])
         res = shared.GradioTemplateResponseOriginal(*args, **kwargs)
         res.body = res.body.replace(b'</head>', f'{js}</head>'.encode("utf8"))
         res.body = res.body.replace(b'</body>', f'{css}</body>'.encode("utf8"))
