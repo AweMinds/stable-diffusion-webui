@@ -1315,7 +1315,8 @@ def create_ui():
         # footer = footer.format(versions=versions_html(), api_docs="/docs" if shared.cmd_opts.api else "https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/API")
         languages = list(localization.localizations.keys())
         languages.sort()
-        footer = footer.format(versions="", language_list=['None'] + languages, api_docs="/docs" if shared.cmd_opts.api else "https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/API")
+        footer = footer.format(versions="", language_list=['None'] + languages, icp_license=icp_license_html(),
+                               api_docs="/docs" if shared.cmd_opts.api else "https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/API")
         gr.HTML(footer, elem_id="footer")
 
         settings.add_functionality(demo)
@@ -1389,3 +1390,10 @@ def setup_ui_api(app):
     app.add_api_route("/internal/sysinfo", download_sysinfo, methods=["GET"])
     app.add_api_route("/internal/sysinfo-download", lambda: download_sysinfo(attachment=True), methods=["GET"])
 
+
+def icp_license_html():
+    return f"""
+    <div class="icp_license">
+            ©2023 深圳奥茗智源科技有限公司 版权所有 <a href="https://beian.miit.gov.cn">粤ICP备2023060458号</a>
+    </div>
+    """
