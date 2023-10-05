@@ -104,7 +104,8 @@ function setupExtraNetworksForTab(tabname) {
         toggleCss(tabname + '_extra_show_dirs_style', css, !showDirs.checked);
         localSet('extra-networks-show-dirs', showDirs.checked ? 1 : 0);
     };
-    showDirs.checked = localGet('extra-networks-show-dirs', 1) == 1;
+    // showDirs.checked = localGet('extra-networks-show-dirs', 1) == 1;
+    showDirs.checked = 1;
     showDirs.addEventListener("change", showDirsUpdate);
     showDirsUpdate();
 }

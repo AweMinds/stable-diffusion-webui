@@ -845,6 +845,10 @@ footer {
     width: auto;
 }
 
+.show-dirs{
+    display: none;
+}
+
 .extra-networks .tab-nav .search {
     width: 16em;
     max-width: 16em;
