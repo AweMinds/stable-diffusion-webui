@@ -1391,6 +1391,7 @@ def setup_ui_api(app):
     app.add_api_route("/internal/sysinfo-download", lambda: download_sysinfo(attachment=True), methods=["GET"])
 
 
+# ruff: noqa: F821
 def icp_license_html():
     return f"""
     <div class="icp_license">
