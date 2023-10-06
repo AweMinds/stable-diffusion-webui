@@ -119,3 +119,4 @@ parser.add_argument("--disable-all-extensions", action='store_true', help="preve
 parser.add_argument("--disable-extra-extensions", action='store_true', help=" prevent all extensions except built-in from running regardless of any other settings", default=False)
 parser.add_argument("--system-monitor-addr", type=str,  help="a remote server who can monitor gpu calls", default='')
 parser.add_argument("--system-monitor-api-secret", type=str,  help="api secret fo calling monitor api", default='')
+parser.add_argument("--disable-save-settings", action='store_true', help="disable save settings", default=False)
