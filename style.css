@@ -1138,6 +1138,6 @@ body.resizing .resize-handle {
     --secondary-950: #1200ff;
 }
 
-#tabs button:last-of-type{
+#tab_settings *{
     display: none;
 }
