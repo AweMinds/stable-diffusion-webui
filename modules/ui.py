@@ -1393,7 +1393,7 @@ def setup_ui_api(app):
 
 # ruff: noqa: F821
 def icp_license_html():
-    return f"""
+    return """
     <div class="icp_license">
             ©2023 深圳奥茗智源科技有限公司 版权所有 <a href="https://beian.miit.gov.cn">粤ICP备2023060458号</a>
     </div>
