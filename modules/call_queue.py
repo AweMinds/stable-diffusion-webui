@@ -8,6 +8,7 @@ import time
 import gradio
 
 from modules import shared, progress, errors, devices, fifo_lock, util, sd_vae, system_monitor
+from modules.shared import opts
 from modules.system_monitor import MonitorException
 
 from PIL import Image
@@ -126,6 +127,12 @@ def wrap_gradio_gpu_call(func, extra_outputs=None):
 def wrap_gradio_call(func, extra_outputs=None, add_stats=False):
     @wraps(func)
     def f(*args, extra_outputs_array=extra_outputs, **kwargs):
+        # if the first argument is a string that says "task(...)", it is treated as a job id
+        if args and type(args[0]) == str and args[0].startswith("task(") and args[0].endswith(")"):
+            id_task = args[0][5:-1]
+        else:
+            id_task = None
+
         run_memmon = shared.opts.memmon_poll_rate > 0 and not shared.mem_mon.disabled and add_stats
         if run_memmon:
             shared.mem_mon.monitor()
@@ -190,6 +197,10 @@ def wrap_gradio_call(func, extra_outputs=None, add_stats=False):
 
         # last item is always HTML
         res[-1] += f"<div class='performance'><p class='time'>Time taken: <wbr><span class='measurement'>{elapsed_text}</span></p>{vram_html}</div>"
+
+        # 添加task_id到output info
+        if id_task and opts.add_task_id_to_infotext:
+            res[-1] += f"<div class='performance'><p class='time'>Task Id: <wbr><span class='measurement'>{id_task}</span></p></div>"
 
         return tuple(res)
 
