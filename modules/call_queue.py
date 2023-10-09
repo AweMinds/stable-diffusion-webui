@@ -41,6 +41,7 @@ def wrap_gradio_gpu_call(func, extra_outputs=None):
         else:
             id_task = None
 
+        log_message = ''
         task_id = None
         status = ''
         time_consumption = {}
@@ -72,6 +73,7 @@ def wrap_gradio_gpu_call(func, extra_outputs=None):
 
                 # 任务完成
                 status = 'finished'
+                log_message = 'done'
                 time_consumption.update(timer.records)
                 time_consumption['total'] = time.time() - added_at_time
                 logger.info(timer.summary())
@@ -79,6 +81,7 @@ def wrap_gradio_gpu_call(func, extra_outputs=None):
             except MonitorException as e:
                 logger.error(f'task {id_task} failed: {e.__str__()}')
                 status = 'failed'
+                log_message = e.__str__()
                 res = extra_outputs_array + [str(e)]
                 monitor_addr = shared.cmd_opts.system_monitor_addr
 
@@ -94,6 +97,7 @@ def wrap_gradio_gpu_call(func, extra_outputs=None):
             except Exception as e:
                 logger.error(f'task {id_task} failed: {e.__str__()}')
                 status = 'failed'
+                log_message = e.__str__()
                 traceback.print_tb(e.__traceback__, file=sys.stderr)
                 print(e, file=sys.stderr)
                 error_message = f'{type(e).__name__}: {e}'
@@ -103,17 +107,8 @@ def wrap_gradio_gpu_call(func, extra_outputs=None):
                 progress.finish_task(id_task)
                 if task_id:
                     try:
-                        if len(res) > 0 and len(res[0]) > 0 and isinstance(res[0][0], Image.Image):
-                            # First element in res is gallery
-                            image_paths = [item.already_saved_as for item in res[0] if isinstance(item, Image.Image)]
-                            log_message = json.dumps([image_paths] + list(res[1:]))
-                        else:
-                            log_message = json.dumps(res)
-                    except Exception as e:
-                        log_message = f'Fail to json serialize results: {str(e)}'
-                    try:
-                        system_monitor.on_task_finished(get_request_from_args(func, args), task_id, status,
-                                                        log_message, time_consumption)
+                        system_monitor.on_task_finished(get_request_from_args(func, args), task_id, status, log_message,
+                                                        time_consumption)
                     except Exception as e:
                         logging.warning(f'send task finished event to monitor failed: {str(e)}')
 
