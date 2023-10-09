@@ -2,10 +2,6 @@ name: Build Docker release image and push
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ "aweminds" ]
-  pull_request:
-    branches: [ "aweminds"]
 
 env:
   REGISTRY: registry.cn-shanghai.aliyuncs.com
