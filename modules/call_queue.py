@@ -10,9 +10,6 @@ import gradio
 from modules import shared, progress, errors, devices, fifo_lock, util, sd_vae, system_monitor
 from modules.shared import opts
 from modules.system_monitor import MonitorException
-
-from PIL import Image
-
 from modules.timer import Timer
 
 queue_lock = fifo_lock.FIFOLock()
