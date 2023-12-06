@@ -1,0 +1,43 @@
+
+################################################################
+[1m[32mInstall script for stable-diffusion + Web UI
+[1m[34mTested on Debian 11 (Bullseye)[0m
+################################################################
+
+################################################################
+Running on [1m[32mbytedance[0m user
+################################################################
+
+################################################################
+Repo already cloned, using it as install directory
+################################################################
+
+################################################################
+Create and activate python venv
+################################################################
+
+################################################################
+Launching launch.py...
+################################################################
+Launching Web UI with arguments: -f --skip-prepare-environment --skip-torch-cuda-test --test-server --do-not-download-clip --no-half --disable-opt-split-attention --use-cpu all --api-server-stop --skip-torch-cuda-test --upcast-sampling --no-half-vae --use-cpu interrogate --api --ckpt /Users/bytedance/Dev/aweminds/stable-diffusion-webui/test/test_files/empty.pt --disable-nan-check
+no module 'xformers'. Processing without...
+no module 'xformers'. Processing without...
+No module 'xformers'. Proceeding without it.
+Warning: caught exception 'Torch not compiled with CUDA enabled', memory monitor disabled
+Civitai Helper: Get Custom Model Folder
+Civitai Helper: Load setting from: /Users/bytedance/Dev/aweminds/stable-diffusion-webui/extensions/Stable-Diffusion-Webui-Civitai-Helper/setting.json
+2023-10-07 20:35:13,727 - ControlNet - [0;32mINFO[0m - ControlNet v1.1.408
+ControlNet preprocessor location: /Users/bytedance/Dev/aweminds/stable-diffusion-webui/extensions/sd-webui-controlnet/annotator/downloads
+2023-10-07 20:35:13,815 - ControlNet - [0;32mINFO[0m - ControlNet v1.1.408
+Loading weights [d030ad8db7] from /Users/bytedance/Dev/aweminds/stable-diffusion-webui/test/test_files/empty.pt
+Creating model from config: /Users/bytedance/Dev/aweminds/stable-diffusion-webui/configs/v1-inference.yaml
+Running on local URL:  http://127.0.0.1:7860
+
+To create a public link, set `share=True` in `launch()`.
+Startup time: 5.5s (import torch: 2.0s, import gradio: 0.6s, setup paths: 0.7s, initialize shared: 0.2s, other imports: 0.6s, setup codeformer: 0.2s, load scripts: 0.7s, create ui: 0.4s, gradio launch: 0.2s).
+Disabling attention optimization
+No Image data blocks found.
+Model loaded in 1.8s (create model: 0.9s, move model to device: 0.6s, calculate empty prompt: 0.2s).
+Disabling attention optimization
+No Image data blocks found.
+No Image data blocks found.
