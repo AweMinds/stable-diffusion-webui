@@ -1193,6 +1193,6 @@ body.resizing .resize-handle {
     --secondary-950: #1200ff;
 }
 
-#tab_settings *{
-    display: none;
+.setting_hide{
+    display: none !important;
 }

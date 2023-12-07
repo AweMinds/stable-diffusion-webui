@@ -1142,9 +1142,15 @@ def create_ui():
 
             for interface, label, ifid in sorted_interfaces:
                 if label in shared.opts.hidden_tabs:
-                    continue
-                with gr.TabItem(label, id=ifid, elem_id=f"tab_{ifid}"):
-                    interface.render()
+                    # 隐藏settings后会导致UI界面无法点击，所以通过css来隐藏setting，待webui官方修复
+                    if label == "Settings":
+                        with gr.TabItem(label, id=ifid, elem_id=f"tab_{ifid}", elem_classes="setting_hide"):
+                            interface.render()
+                    else:
+                        continue
+                else:
+                    with gr.TabItem(label, id=ifid, elem_id=f"tab_{ifid}"):
+                        interface.render()
 
                 if ifid not in ["extensions", "settings"]:
                     loadsave.add_block(interface, ifid)
