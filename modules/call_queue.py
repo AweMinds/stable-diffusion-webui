@@ -208,7 +208,7 @@ def get_request_from_args(func, args):
         return args[37]
 
     if func_name == "run_postprocessing":
-        return args[6]
+        return args[7]
 
     return None
 
